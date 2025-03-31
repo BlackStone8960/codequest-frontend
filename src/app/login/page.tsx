@@ -1,4 +1,49 @@
+"use client";
+
+import { useUserStore } from "@/store/userStore";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
 const LoginPage = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { setUser } = useUserStore();
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const res = await axios.post("http://localhost:8080/api/auth/login", {
+        email,
+        password,
+      });
+
+      const { user, token } = res.data;
+      console.log("Login successful:", user, token);
+
+      // Store user data in Zustand store
+      setUser({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      });
+
+      // Store token in local storage
+      localStorage.setItem("token", token);
+
+      // Redirect to dashboard
+      // router.push("/dashboard");
+    } catch (error: any) {
+      console.error(
+        "Login error:",
+        error.response?.data?.message || error.message
+      );
+      // TODO: Add error handling (e.g., show a notification)
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center px-4 py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -9,7 +54,12 @@ const LoginPage = () => {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-6 shadow rounded-lg sm:px-10">
-          <form className="space-y-6" action="#" method="POST">
+          <form
+            className="space-y-6"
+            action="#"
+            method="POST"
+            onSubmit={handleSubmit}
+          >
             <div>
               <label
                 htmlFor="email"
@@ -25,6 +75,8 @@ const LoginPage = () => {
                   autoComplete="email"
                   required
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </div>
@@ -44,6 +96,8 @@ const LoginPage = () => {
                   autoComplete="current-password"
                   required
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
             </div>
