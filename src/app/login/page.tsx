@@ -5,7 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const LoginPage = () => {
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { setUser } = useUserStore();
@@ -34,7 +34,7 @@ const LoginPage = () => {
       localStorage.setItem("token", token);
 
       // Redirect to dashboard
-      // router.push("/dashboard");
+      router.push("/dashboard");
     } catch (error: any) {
       console.error(
         "Login error:",
@@ -143,6 +143,4 @@ const LoginPage = () => {
       </div>
     </div>
   );
-};
-
-export default LoginPage;
+}
