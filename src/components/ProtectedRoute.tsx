@@ -9,15 +9,16 @@ type Props = {
 };
 
 export default function ProtectedRoute({ children }: Props) {
-  const { user } = useUserStore();
+  const user = useUserStore((state) => state.user);
+  const hasHydrated = useUserStore((state) => state.hasHydrated);
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) {
+    if (hasHydrated && !user) {
       // Redirect to login page if user is not authenticated
-      router.replace("/login");
+      router.push("/login");
     }
-  }, [user, router]);
+  }, [hasHydrated, user, router]);
 
   if (!user) {
     // Render nothing when user is not authenticated
