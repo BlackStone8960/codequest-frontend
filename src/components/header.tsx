@@ -1,10 +1,22 @@
 "use client";
 
-import Link from "next/link";
+import { useUserStore } from "@/store/userStore";
+import Image from "next/image";
 import { useState } from "react";
+import {
+  FaBars,
+  FaGithub,
+  FaList,
+  FaTachometerAlt,
+  FaTimes,
+  FaUser,
+} from "react-icons/fa";
+import LogoutButton from "./LogoutButton";
+import PageLink from "./PageLink";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const user = useUserStore((state) => state.user);
 
   return (
     <>
@@ -17,48 +29,57 @@ export default function Header() {
           onClick={() => setMenuOpen(true)}
           className="p-2 bg-gray-800 rounded-md"
         >
-          <span className="block w-6 h-0.5 bg-white mb-1"></span>
-          <span className="block w-6 h-0.5 bg-white mb-1"></span>
-          <span className="block w-6 h-0.5 bg-white"></span>
+          <FaBars className="text-white text-2xl" />
         </button>
       </div>
 
-      {/* Hamburger menu items */}
+      {/* Slide-out menu */}
       {menuOpen && (
         <>
           <div
             className="fixed inset-0 bg-black/50 z-40"
             onClick={() => setMenuOpen(false)}
           />
-          <div className="fixed top-0 right-0 w-64 h-full bg-gray-900 z-50 shadow-lg transform transition-transform duration-300">
-            <div className="flex justify-end p-4">
+          <div className="fixed top-0 right-0 w-64 h-full bg-gray-900 z-50 shadow-lg p-4">
+            {/* Header row with avatar and name */}
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/default-avatar.png" // Replace with real avatar path
+                  alt="User avatar"
+                  width={40}
+                  height={40}
+                  className="rounded-full"
+                />
+                <span className="text-teal-300 font-semibold">
+                  {user?.username || "User"}
+                </span>
+              </div>
               <button
                 onClick={() => setMenuOpen(false)}
-                className="text-white text-xl"
+                className="text-white text-2xl"
                 aria-label="Close menu"
               >
-                &times;
+                <FaTimes />
               </button>
             </div>
-            <nav className="flex flex-col gap-4 p-4">
-              <Link href="/dashboard" className="bg-gray-700 p-2 rounded">
-                Dashboard
-              </Link>
-              <Link href="/tasks" className="bg-gray-700 p-2 rounded">
-                Tasks
-              </Link>
-              <Link
-                href="/github-contributions"
-                className="bg-gray-700 p-2 rounded"
-              >
-                Github Contributions
-              </Link>
-              <Link href="/profile" className="bg-gray-700 p-2 rounded">
-                Profile
-              </Link>
-              <Link href="/settings" className="bg-gray-700 p-2 rounded">
-                Settings
-              </Link>
+
+            <nav className="flex flex-col gap-4">
+              <PageLink
+                href={"/dashboard"}
+                name="Dashboard"
+                Icon={FaTachometerAlt}
+              />
+              <PageLink href={"/tasks"} name="Tasks" Icon={FaList} />
+              <PageLink
+                href={"/github-contributions"}
+                name="GitHub Activity"
+                Icon={FaGithub}
+              />
+              <PageLink href={"/profile"} name="Profile" Icon={FaUser} />
+
+              <div className="border-t border-gray-700 my-2" />
+              <LogoutButton />
             </nav>
           </div>
         </>
