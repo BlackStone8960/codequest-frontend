@@ -51,7 +51,7 @@ export default function Header() {
                   height={40}
                   className="rounded-full"
                 />
-                <span className="text-teal-300 font-semibold">
+                <span className="text-gray-300 font-semibold">
                   {user?.username || "User"}
                 </span>
               </div>

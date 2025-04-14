@@ -5,6 +5,18 @@ type User = {
   id: string;
   username: string;
   email: string;
+  avatarUrl?: string;
+  githubId?: string;
+  displayName: string;
+  totalExperience: number;
+  currentHP: number;
+  maxHP: number;
+  currentLevelXP: number;
+  levelUpXP: number;
+  rank: number;
+  level: number;
+  streak: number;
+  tasksCompleted: string[];
 };
 
 type UserStore = {

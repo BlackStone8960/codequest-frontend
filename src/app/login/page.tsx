@@ -25,9 +25,21 @@ export default function LoginPage() {
 
       // Store user data in Zustand store
       setUser({
-        id: user.id,
+        id: user._id,
         username: user.username,
         email: user.email,
+        avatarUrl: user.avatarUrl,
+        githubId: user.githubId,
+        displayName: user.displayName,
+        totalExperience: user.totalExperience,
+        currentHP: user.currentHP,
+        maxHP: user.maxHP,
+        currentLevelXP: user.currentLevelXP,
+        levelUpXP: user.levelUpXP,
+        rank: user.rank,
+        level: user.level,
+        tasksCompleted: user.tasksCompleted || [],
+        streak: user.streak,
       });
 
       // Store token in local storage

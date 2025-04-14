@@ -2,9 +2,12 @@
 
 import Header from "@/components/Header";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { useUserStore } from "@/store/userStore";
 import Image from "next/image";
 
 export default function Profile() {
+  const user = useUserStore((state) => state.user);
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-[#0f172a] text-white px-4 py-2">
@@ -25,11 +28,11 @@ export default function Profile() {
           <div className="bg-gray-800 p-4 rounded-md">
             <div className="flex justify-between">
               <span className="text-gray-400">Name</span>
-              <span>John Doe</span>
+              <span>{user?.username || "Username"}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-400">Email</span>
-              <span>johndoe@example.com</span>
+              <span>{user?.email || "Email"}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-400">Password</span>
@@ -40,21 +43,23 @@ export default function Profile() {
           <div className="bg-gray-800 p-4 rounded-md">
             <div className="flex justify-between">
               <span className="text-gray-400">Level</span>
-              <span>5</span>
+              <span>{user?.level || 0}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-400">HP</span>
-              <span>1200 / 1510</span>
+              <span>
+                {user?.currentHP || 100} / {user?.maxHP || 100}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-400">Experience</span>
-              <span>8200 XP</span>
+              <span>{user?.totalExperience || 0} XP</span>
             </div>
           </div>
 
           <div className="bg-gray-800 p-4 rounded-md flex justify-between">
             <span className="font-semibold">Tasks Completed</span>
-            <span>42</span>
+            <span>{user?.tasksCompleted?.length || 0}</span>
           </div>
         </div>
       </div>
