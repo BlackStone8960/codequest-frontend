@@ -37,7 +37,7 @@ export default function Dashboard() {
               <CardSection title="Streak">
                 <div>
                   <span className="text-5xl font-bold mt-2">
-                    {user?.streak || -1}
+                    {user?.streak || 0}
                   </span>
                   <span className="text-sm">days</span>
                 </div>
