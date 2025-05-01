@@ -3,16 +3,18 @@
 import AddTaskModal from "@/components/AddTaskModal";
 import Header from "@/components/Header";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { useUserStore } from "@/store/userStore";
 import axios from "axios";
 import { format, isBefore, parseISO, startOfDay } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 
 interface Task {
   _id: string;
   title: string;
   dueDate: string;
   difficulty: "easy" | "medium" | "hard";
-  isCompleted: boolean;
+  completed: boolean;
   userId: string;
 }
 
@@ -26,7 +28,7 @@ const formatDate = (date: string) => {
   }
 };
 
-// Validate due date
+// Validate due date to prevent past dates
 const isValidDueDate = (date: string) => {
   try {
     const inputDate = parseISO(date);
@@ -43,8 +45,20 @@ export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showCompletedTasks, setShowCompletedTasks] = useState(false);
+  const setUser = useUserStore((state) => state.setUser);
 
-  // Get tasks
+  // Separate tasks into completed and incomplete
+  const { completedTasks, incompleteTasks } = useMemo(() => {
+    const completed = tasks.filter((task) => task.completed);
+    const incomplete = tasks.filter((task) => !task.completed);
+    return {
+      completedTasks: completed,
+      incompleteTasks: incomplete,
+    };
+  }, [tasks]);
+
+  // Fetch all tasks from the API
   const fetchTasks = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -73,9 +87,9 @@ export default function TasksPage() {
     }
   };
 
-  // Add new task
+  // Add a new task
   const handleAddTask = async (
-    task: Omit<Task, "_id" | "isCompleted" | "userId">
+    task: Omit<Task, "_id" | "completed" | "userId">
   ) => {
     try {
       const token = localStorage.getItem("token");
@@ -84,7 +98,7 @@ export default function TasksPage() {
         return;
       }
 
-      // Validate due date
+      // Validate due date before submission
       if (!isValidDueDate(task.dueDate)) {
         setError("Due date cannot be in the past");
         return;
@@ -108,7 +122,7 @@ export default function TasksPage() {
     }
   };
 
-  // Update task completion status
+  // Toggle task completion status
   const handleToggleComplete = async (taskId: string) => {
     try {
       const token = localStorage.getItem("token");
@@ -117,7 +131,7 @@ export default function TasksPage() {
         return;
       }
 
-      await axios.patch(
+      const response = await axios.patch(
         `http://localhost:8080/api/tasks/${taskId}/complete`,
         {},
         {
@@ -127,11 +141,28 @@ export default function TasksPage() {
         }
       );
 
-      setTasks(
-        tasks.map((t) =>
-          t._id === taskId ? { ...t, isCompleted: !t.isCompleted } : t
-        )
-      );
+      // Update user data in Zustand store
+      const { user } = response.data;
+      setUser({
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        avatarUrl: user.avatarUrl,
+        githubId: user.githubId,
+        displayName: user.displayName,
+        totalExperience: user.totalExperience,
+        currentHP: user.currentHP,
+        maxHP: user.maxHP,
+        currentLevelXP: user.currentLevelXP,
+        levelUpXP: user.levelUpXP,
+        rank: user.rank,
+        level: user.level,
+        tasksCompleted: user.tasksCompleted || [],
+        streak: user.streak,
+      });
+
+      // Refresh tasks to get updated state
+      await fetchTasks();
     } catch (err) {
       setError("Failed to update task");
       console.error("Error updating task:", err);
@@ -142,6 +173,52 @@ export default function TasksPage() {
   useEffect(() => {
     fetchTasks();
   }, []);
+
+  // Render individual task card
+  const renderTaskCard = (task: Task) => (
+    <div
+      key={task._id}
+      className="bg-[#1e293b] rounded-lg p-4 border border-gray-700"
+    >
+      <div className="flex items-start gap-4">
+        <input
+          type="checkbox"
+          checked={task.completed}
+          onChange={() => handleToggleComplete(task._id)}
+          className="mt-1.5 h-5 w-5 rounded border-gray-600 bg-gray-700 checked:bg-blue-600"
+        />
+        <div className="flex-1">
+          <h3
+            className={`text-xl font-semibold mb-2 ${
+              task.completed ? "line-through text-gray-500" : ""
+            }`}
+          >
+            {task.title}
+          </h3>
+          <div className="space-y-1 text-gray-400">
+            <p>Due: {formatDate(task.dueDate)}</p>
+            <p>
+              Difficulty:{" "}
+              <span
+                className={
+                  task.difficulty === "hard"
+                    ? "text-red-400"
+                    : task.difficulty === "medium"
+                    ? "text-yellow-400"
+                    : "text-green-400"
+                }
+              >
+                {task.difficulty
+                  ? task.difficulty.charAt(0).toUpperCase() +
+                    task.difficulty.slice(1)
+                  : "Medium"}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <ProtectedRoute>
@@ -169,49 +246,37 @@ export default function TasksPage() {
         {/* Loading State */}
         {isLoading ? (
           <div className="flex justify-center items-center h-32">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
           </div>
         ) : (
-          /* Tasks List */
-          <div className="space-y-4">
-            {tasks.map((task) => (
-              <div
-                key={task._id}
-                className="bg-[#1e293b] rounded-lg p-4 border border-gray-700"
-              >
-                <div className="flex items-start gap-4">
-                  <input
-                    type="checkbox"
-                    checked={task.isCompleted}
-                    onChange={() => handleToggleComplete(task._id)}
-                    className="mt-1.5 h-5 w-5 rounded border-gray-600 bg-gray-700 checked:bg-blue-600"
-                  />
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold mb-2">{task.title}</h3>
-                    <div className="space-y-1 text-gray-400">
-                      <p>Due: {formatDate(task.dueDate)}</p>
-                      <p>
-                        Difficulty:{" "}
-                        <span
-                          className={
-                            task.difficulty === "hard"
-                              ? "text-red-400"
-                              : task.difficulty === "medium"
-                              ? "text-yellow-400"
-                              : "text-green-400"
-                          }
-                        >
-                          {task.difficulty
-                            ? task.difficulty.charAt(0).toUpperCase() +
-                              task.difficulty.slice(1)
-                            : "Medium"}
-                        </span>
-                      </p>
-                    </div>
+          <div className="space-y-6">
+            {/* Incomplete Tasks */}
+            <div className="space-y-4">
+              {incompleteTasks.map(renderTaskCard)}
+            </div>
+
+            {/* Completed Tasks Section */}
+            {completedTasks.length > 0 && (
+              <div className="border-t border-gray-700 pt-4">
+                <button
+                  onClick={() => setShowCompletedTasks(!showCompletedTasks)}
+                  className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-4"
+                >
+                  {showCompletedTasks ? (
+                    <FaChevronDown className="w-4 h-4" />
+                  ) : (
+                    <FaChevronRight className="w-4 h-4" />
+                  )}
+                  Completed Tasks ({completedTasks.length})
+                </button>
+
+                {showCompletedTasks && (
+                  <div className="space-y-4 opacity-75">
+                    {completedTasks.map(renderTaskCard)}
                   </div>
-                </div>
+                )}
               </div>
-            ))}
+            )}
           </div>
         )}
 
