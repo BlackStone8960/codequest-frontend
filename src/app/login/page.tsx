@@ -58,6 +58,11 @@ export default function LoginPage() {
     }
   };
 
+  const handleGitHubLogin = () => {
+    // Redirect to GitHub OAuth endpoint
+    window.location.href = "http://localhost:8080/api/auth/github";
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-black px-4">
       <div className="w-full max-w-sm bg-[#0B0F19] p-8 rounded-xl shadow space-y-6">
@@ -111,7 +116,10 @@ export default function LoginPage() {
         </p>
 
         <div className="mt-6">
-          <button className="w-full flex items-center justify-center border border-white text-white py-2 rounded-md hover:bg-white hover:text-black transition">
+          <button 
+            onClick={handleGitHubLogin}
+            className="w-full flex items-center justify-center border border-white text-white py-2 rounded-md hover:bg-white hover:text-black transition"
+          >
             <FaGithub className="w-5 h-5 mr-2" />
             Login with GitHub
           </button>
