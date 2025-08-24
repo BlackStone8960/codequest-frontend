@@ -6,6 +6,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { useUserStore } from "@/store/userStore";
 import axios from "axios";
 import { format, isBefore, parseISO, startOfDay } from "date-fns";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 
@@ -47,6 +48,8 @@ export default function TasksPage() {
   const [error, setError] = useState<string | null>(null);
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const setUser = useUserStore((state) => state.setUser);
+  const clearUser = useUserStore((state) => state.clearUser);
+  const router = useRouter();
 
   // Separate tasks into completed and incomplete
   const { completedTasks, incompleteTasks } = useMemo(() => {
@@ -63,7 +66,8 @@ export default function TasksPage() {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        setError("Please login to continue");
+        setError("Authentication required. Please login.");
+        setIsLoading(false);
         return;
       }
 
@@ -79,9 +83,19 @@ export default function TasksPage() {
       });
 
       setTasks(sortedTasks);
-    } catch (err) {
-      setError("Failed to fetch tasks");
+      setError(null);
+    } catch (err: any) {
       console.error("Error fetching tasks:", err);
+
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        // Clear user data and redirect to login page on authentication error
+        clearUser();
+        localStorage.removeItem("token");
+        router.push("/login");
+        return;
+      }
+
+      setError("Failed to fetch tasks.");
     } finally {
       setIsLoading(false);
     }
@@ -94,7 +108,7 @@ export default function TasksPage() {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        setError("Please login to continue");
+        setError("Authentication required. Please login.");
         return;
       }
 
@@ -116,9 +130,18 @@ export default function TasksPage() {
 
       setTasks([...tasks, response.data]);
       setIsModalOpen(false);
-    } catch (err) {
-      setError("Failed to add task");
+      setError(null);
+    } catch (err: any) {
       console.error("Error adding task:", err);
+
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        clearUser();
+        localStorage.removeItem("token");
+        router.push("/login");
+        return;
+      }
+
+      setError("Failed to add task.");
     }
   };
 
@@ -127,7 +150,7 @@ export default function TasksPage() {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        setError("Please login to continue");
+        setError("Authentication required. Please login.");
         return;
       }
 
@@ -163,9 +186,18 @@ export default function TasksPage() {
 
       // Refresh tasks to get updated state
       await fetchTasks();
-    } catch (err) {
-      setError("Failed to update task");
+      setError(null);
+    } catch (err: any) {
       console.error("Error updating task:", err);
+
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        clearUser();
+        localStorage.removeItem("token");
+        router.push("/login");
+        return;
+      }
+
+      setError("Failed to update task.");
     }
   };
 
