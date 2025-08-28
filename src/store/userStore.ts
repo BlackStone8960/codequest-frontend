@@ -16,6 +16,9 @@ type User = {
   rank: number;
   level: number;
   streak: number;
+  longestStreak: number;
+  totalContributions: number;
+  lastCommitDate?: string;
   tasksCompleted: string[];
 };
 

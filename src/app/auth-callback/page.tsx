@@ -52,6 +52,9 @@ export default function AuthCallbackPage() {
           level: user.level,
           tasksCompleted: user.tasksCompleted || [],
           streak: user.streak,
+          longestStreak: user.longestStreak || 0,
+          totalContributions: user.totalContributions || 0,
+          lastCommitDate: user.lastCommitDate,
         });
 
         // Redirect to dashboard

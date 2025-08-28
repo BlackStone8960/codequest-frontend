@@ -3,6 +3,7 @@
 import CardSection from "@/components/CardSection";
 import Header from "@/components/Header";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import GitHubStreak from "@/components/GitHubStreak";
 import { useUserStore } from "@/store/userStore";
 
 export default function Dashboard() {
@@ -29,20 +30,11 @@ export default function Dashboard() {
               <div className="mt-4 text-sm font-bold">
                 HP: {user?.currentHP || 100} / {user?.maxHP || 100}
               </div>
-              {/* TODO: Replace with dynamic Level/HP data */}
             </CardSection>
 
             <div className="grid gap-4">
-              {/* Streak */}
-              <CardSection title="Streak">
-                <div>
-                  <span className="text-5xl font-bold mt-2">
-                    {user?.streak || 0}
-                  </span>
-                  <span className="text-sm">days</span>
-                </div>
-                {/* TODO: Replace with dynamic streak data */}
-              </CardSection>
+              {/* GitHub Streak */}
+              <GitHubStreak />
 
               {/* Statistics */}
               <CardSection title="Statistics">
@@ -61,10 +53,10 @@ export default function Dashboard() {
                 <p>
                   Rank: <span className="font-mono">{user?.rank || 0}</span>
                 </p>
-                {/* TODO: Replace with actual statistics */}
               </CardSection>
             </div>
           </div>
+          
           {/* Recent Activity */}
           <CardSection title="Recent Activity" />
 
