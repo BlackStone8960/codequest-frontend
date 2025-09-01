@@ -1,9 +1,11 @@
 "use client";
 
 import CardSection from "@/components/CardSection";
+import GitHubCalendar from "@/components/GitHubCalendar";
+import GitHubCommitHistory from "@/components/GitHubCommitHistory";
+import GitHubStreak from "@/components/GitHubStreak";
 import Header from "@/components/Header";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import GitHubStreak from "@/components/GitHubStreak";
 import { useUserStore } from "@/store/userStore";
 
 export default function Dashboard() {
@@ -56,7 +58,13 @@ export default function Dashboard() {
               </CardSection>
             </div>
           </div>
-          
+
+          {/* GitHub Calendar */}
+          <GitHubCalendar />
+
+          {/* GitHub Commit History */}
+          <GitHubCommitHistory />
+
           {/* Recent Activity */}
           <CardSection title="Recent Activity" />
 
@@ -65,9 +73,6 @@ export default function Dashboard() {
 
           {/* Tasks Completed */}
           <CardSection title="Tasks Completed" />
-
-          {/* Github Contributions */}
-          <CardSection title="Github Contributions" />
         </div>
       </div>
     </ProtectedRoute>
