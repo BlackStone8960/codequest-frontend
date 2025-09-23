@@ -33,9 +33,7 @@ export default function GitHubCalendar() {
       const commitsByDate = new Map<string, GitHubCommit[]>();
 
       commits.forEach((commit) => {
-        const date = new Date(commit.commit.author.date)
-          .toISOString()
-          .split("T")[0];
+        const date = new Date(commit.date).toISOString().split("T")[0];
 
         if (!commitsByDate.has(date)) {
           commitsByDate.set(date, []);
@@ -90,6 +88,104 @@ export default function GitHubCalendar() {
     return `${day.date}: ${day.count} pushes`;
   };
 
+  // 月のラベルを生成
+  const getMonthLabels = () => {
+    const months = [];
+    const today = new Date();
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - 364);
+
+    // 開始日を週の最初の日（日曜日）に調整
+    const dayOfWeek = startDate.getDay();
+    startDate.setDate(startDate.getDate() - dayOfWeek);
+
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    // 各月の最初の日が何週目かを計算
+    let lastMonth = -1;
+    let monthStartWeek = 0;
+
+    for (let week = 0; week < 53; week++) {
+      const weekStartDate = new Date(startDate);
+      weekStartDate.setDate(startDate.getDate() + week * 7);
+
+      const month = weekStartDate.getMonth();
+
+      if (month !== lastMonth) {
+        // 前の月のラベルを追加（幅を計算）
+        if (lastMonth !== -1) {
+          const monthWidth = (week - monthStartWeek) * 4; // 週の幅は4px
+          months[months.length - 1].width = monthWidth;
+        }
+
+        months.push({
+          name: monthNames[month],
+          width: 0, // 後で計算
+          marginLeft: week * 4,
+        });
+
+        lastMonth = month;
+        monthStartWeek = week;
+      }
+    }
+
+    // 最後の月の幅を計算
+    if (months.length > 0) {
+      const lastMonthWidth = (53 - monthStartWeek) * 4;
+      months[months.length - 1].width = lastMonthWidth;
+    }
+
+    // 幅が0の月のラベルを削除
+    return months.filter((month) => month.width > 0);
+  };
+
+  // 週ごとの行を生成（GitHub風の横長レイアウト）
+  const getWeekRows = () => {
+    const weeks = [];
+    const today = new Date();
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - 364);
+
+    // 開始日を週の最初の日（日曜日）に調整
+    const dayOfWeek = startDate.getDay();
+    startDate.setDate(startDate.getDate() - dayOfWeek);
+
+    for (let week = 0; week < 53; week++) {
+      const weekDays = [];
+      for (let day = 0; day < 7; day++) {
+        const currentDate = new Date(startDate);
+        currentDate.setDate(startDate.getDate() + week * 7 + day);
+
+        // 今日より未来の日付は表示しない
+        if (currentDate > today) {
+          weekDays.push(null);
+          continue;
+        }
+
+        const dateString = currentDate.toISOString().split("T")[0];
+        const dayData = calendarData.find((d) => d.date === dateString);
+
+        weekDays.push(dayData || null);
+      }
+      weeks.push(weekDays);
+    }
+
+    return weeks;
+  };
+
   if (!user?.githubId) {
     return (
       <div className="bg-gray-800 rounded-lg p-6 text-center">
@@ -142,17 +238,56 @@ export default function GitHubCalendar() {
 
       {!isLoading && !error && (
         <div className="space-y-4">
-          {/* カレンダーグリッド */}
-          <div className="grid grid-cols-53 gap-1">
-            {calendarData.map((day, index) => (
-              <div
-                key={day.date}
-                className={`w-3 h-3 rounded-sm ${getIntensityColor(
-                  day.count
-                )} hover:scale-125 transition-transform cursor-pointer`}
-                title={getTooltipText(day)}
-              />
-            ))}
+          {/* GitHub風コントリビューションカレンダー */}
+          <div className="flex flex-col space-y-2">
+            {/* 月のラベル */}
+            <div className="flex justify-start ml-8">
+              {getMonthLabels().map((month, index) => (
+                <div
+                  key={index}
+                  className="text-xs text-gray-400"
+                  style={{
+                    width: `${month.width}px`,
+                    marginLeft: `${month.marginLeft}px`,
+                    minWidth: "20px",
+                  }}
+                >
+                  {month.name}
+                </div>
+              ))}
+            </div>
+
+            {/* カレンダーグリッド（GitHub風の横長レイアウト） */}
+            <div className="flex">
+              {/* 曜日のラベル */}
+              <div className="flex flex-col space-y-1 mr-2">
+                {["Sun", "", "Mon", "", "Wed", "", "Fri"].map((day, index) => (
+                  <div
+                    key={index}
+                    className="text-xs text-gray-400 h-3 flex items-center"
+                  >
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              {/* カレンダーグリッド（横長） */}
+              <div className="flex space-x-1">
+                {getWeekRows().map((week, weekIndex) => (
+                  <div key={weekIndex} className="flex flex-col space-y-1">
+                    {week.map((day, dayIndex) => (
+                      <div
+                        key={day ? day.date : `empty-${weekIndex}-${dayIndex}`}
+                        className={`w-3 h-3 rounded-sm ${
+                          day ? getIntensityColor(day.count) : "bg-transparent"
+                        } hover:scale-125 transition-transform cursor-pointer`}
+                        title={day ? getTooltipText(day) : ""}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* 凡例 */}

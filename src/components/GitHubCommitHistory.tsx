@@ -28,7 +28,11 @@ export default function GitHubCommitHistory() {
 
     try {
       const data = await GitHubService.getUserCommits(user.githubId, days);
-      setCommits(data);
+      // 新しいコミットから順に並べる（日付の降順）
+      const sortedData = data.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+      setCommits(sortedData);
     } catch (err: any) {
       console.error("Failed to fetch commits:", err);
       setError(err.message || "Failed to fetch commit history");
@@ -145,22 +149,22 @@ export default function GitHubCommitHistory() {
                       <div className="flex items-center gap-2 mb-2">
                         <FaCode className="text-green-400 text-sm" />
                         <p className="text-white text-sm font-medium">
-                          {truncateMessage(commit.commit.message)}
+                          {truncateMessage(commit.message)}
                         </p>
                       </div>
                       <div className="flex items-center gap-4 text-xs text-gray-400">
                         <div className="flex items-center gap-1">
                           <FaCalendarAlt />
-                          <span>{formatDate(commit.commit.author.date)}</span>
+                          <span>{formatDate(commit.date)}</span>
                         </div>
-                        <span>by {commit.commit.author.name}</span>
+                        <span>by {commit.author?.name || "Unknown"}</span>
                         <span className="font-mono text-gray-500">
-                          {commit.sha.substring(0, 7)}
+                          {commit.sha?.substring(0, 7) || "N/A"}
                         </span>
                       </div>
                     </div>
                     <a
-                      href={commit.html_url}
+                      href={commit.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-400 hover:text-blue-300 ml-2"

@@ -1,21 +1,15 @@
 import axios from "axios";
 
 export interface GitHubCommit {
-  sha: string;
-  commit: {
-    author: {
-      name: string;
-      email: string;
-      date: string;
-    };
-    message: string;
-  };
-  html_url: string;
-  repository?: {
+  sha?: string;
+  date: string;
+  message: string;
+  url: string;
+  repository?: string;
+  author?: {
     name: string;
-    full_name: string;
+    email: string;
   };
-  branch?: string;
 }
 
 export interface StreakData {
@@ -68,53 +62,23 @@ export class GitHubService {
     username: string,
     days: number = 365
   ): Promise<GitHubCommit[]> {
-    const githubToken = await this.getGitHubToken();
-    if (!githubToken) {
-      throw new Error("GitHub token not available");
-    }
-
-    const since = new Date();
-    since.setDate(since.getDate() - days);
-
     try {
-      // より詳細なコミット情報を取得
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Authentication token not available");
+      }
+
+      // バックエンドの新しいエンドポイントを使用
       const response = await axios.get(
-        `https://api.github.com/search/commits?q=author:${username}+committer-date:>${
-          since.toISOString().split("T")[0]
-        }&sort=committer-date&order=desc`,
+        "http://localhost:8080/api/github/commits",
         {
           headers: {
-            Authorization: `token ${githubToken}`,
-            Accept: "application/vnd.github.cloak-preview",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      const commits = response.data.items || [];
-
-      // 各コミットの詳細情報を取得
-      const detailedCommits = await Promise.all(
-        commits.slice(0, 50).map(async (commit: any) => {
-          try {
-            const commitResponse = await axios.get(commit.url, {
-              headers: {
-                Authorization: `token ${githubToken}`,
-              },
-            });
-
-            return {
-              ...commit,
-              repository: commitResponse.data.repository,
-              branch: commitResponse.data.branch,
-            };
-          } catch (error) {
-            console.warn("Failed to fetch commit details:", error);
-            return commit;
-          }
-        })
-      );
-
-      return detailedCommits;
+      return response.data.commits || [];
     } catch (error) {
       console.error("Failed to fetch GitHub commits:", error);
       throw error;
@@ -125,7 +89,7 @@ export class GitHubService {
     // --- Normalize commit dates to UTC "YYYY-MM-DD" and dedupe ---
     const datesSet = new Set<string>();
     for (const c of commits) {
-      const day = new Date(c.commit.author.date).toISOString().slice(0, 10); // UTC day
+      const day = new Date(c.date).toISOString().slice(0, 10); // UTC day
       datesSet.add(day);
     }
 
