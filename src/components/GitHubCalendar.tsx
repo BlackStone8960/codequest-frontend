@@ -4,6 +4,8 @@ import { GitHubCommit, GitHubService } from "@/services/githubService";
 import { useUserStore } from "@/store/userStore";
 import { useEffect, useState } from "react";
 import { FaGithub } from "react-icons/fa";
+import { Tooltip } from "react-tooltip";
+import "react-tooltip/dist/react-tooltip.css";
 
 interface CalendarDay {
   date: string;
@@ -88,9 +90,12 @@ export default function GitHubCalendar() {
     return `${day.date}: ${day.count} pushes`;
   };
 
+  const CELL_SIZE = 12; // w-3 = 12px
+  const GAP = 4; // space-x-1 = 4px
+  const WEEK_WIDTH = CELL_SIZE + GAP; // 16px per week column
+
   // 月のラベルを生成
   const getMonthLabels = () => {
-    const months = [];
     const today = new Date();
     const startDate = new Date(today);
     startDate.setDate(today.getDate() - 364);
@@ -100,56 +105,31 @@ export default function GitHubCalendar() {
     startDate.setDate(startDate.getDate() - dayOfWeek);
 
     const monthNames = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     ];
 
-    // 各月の最初の日が何週目かを計算
+    const labels: { name: string; weeks: number }[] = [];
     let lastMonth = -1;
-    let monthStartWeek = 0;
 
     for (let week = 0; week < 53; week++) {
-      const weekStartDate = new Date(startDate);
-      weekStartDate.setDate(startDate.getDate() + week * 7);
-
-      const month = weekStartDate.getMonth();
+      const weekDate = new Date(startDate);
+      weekDate.setDate(startDate.getDate() + week * 7);
+      const month = weekDate.getMonth();
 
       if (month !== lastMonth) {
-        // 前の月のラベルを追加（幅を計算）
-        if (lastMonth !== -1) {
-          const monthWidth = (week - monthStartWeek) * 4; // 週の幅は4px
-          months[months.length - 1].width = monthWidth;
-        }
-
-        months.push({
-          name: monthNames[month],
-          width: 0, // 後で計算
-          marginLeft: week * 4,
-        });
-
+        labels.push({ name: monthNames[month], weeks: 1 });
         lastMonth = month;
-        monthStartWeek = week;
+      } else if (labels.length > 0) {
+        labels[labels.length - 1].weeks++;
       }
     }
 
-    // 最後の月の幅を計算
-    if (months.length > 0) {
-      const lastMonthWidth = (53 - monthStartWeek) * 4;
-      months[months.length - 1].width = lastMonthWidth;
-    }
-
-    // 幅が0の月のラベルを削除
-    return months.filter((month) => month.width > 0);
+    // Hide labels with fewer than 2 weeks to prevent overlap with next label
+    return labels.map((label) => ({
+      ...label,
+      hidden: label.weeks < 2,
+    }));
   };
 
   // 週ごとの行を生成（GitHub風の横長レイアウト）
@@ -239,56 +219,56 @@ export default function GitHubCalendar() {
       {!isLoading && !error && (
         <div className="space-y-4">
           {/* GitHub風コントリビューションカレンダー */}
-          <div className="flex flex-col space-y-2">
-            {/* 月のラベル */}
-            <div className="flex justify-start ml-8">
-              {getMonthLabels().map((month, index) => (
-                <div
-                  key={index}
-                  className="text-xs text-gray-400"
-                  style={{
-                    width: `${month.width}px`,
-                    marginLeft: `${month.marginLeft}px`,
-                    minWidth: "20px",
-                  }}
-                >
-                  {month.name}
-                </div>
-              ))}
-            </div>
-
-            {/* カレンダーグリッド（GitHub風の横長レイアウト） */}
-            <div className="flex">
-              {/* 曜日のラベル */}
-              <div className="flex flex-col space-y-1 mr-2">
-                {["Sun", "", "Mon", "", "Wed", "", "Fri"].map((day, index) => (
+          <div className="overflow-x-auto overflow-y-hidden">
+            <div className="flex flex-col space-y-2 min-w-max pb-1">
+              {/* 月のラベル */}
+              <div className="flex ml-8">
+                {getMonthLabels().map((month, index) => (
                   <div
                     key={index}
-                    className="text-xs text-gray-400 h-3 flex items-center"
+                    className="text-xs text-gray-400 whitespace-nowrap"
+                    style={{ width: `${month.weeks * WEEK_WIDTH}px` }}
                   >
-                    {day}
+                    {month.hidden ? "" : month.name}
                   </div>
                 ))}
               </div>
 
-              {/* カレンダーグリッド（横長） */}
-              <div className="flex space-x-1">
-                {getWeekRows().map((week, weekIndex) => (
-                  <div key={weekIndex} className="flex flex-col space-y-1">
-                    {week.map((day, dayIndex) => (
-                      <div
-                        key={day ? day.date : `empty-${weekIndex}-${dayIndex}`}
-                        className={`w-3 h-3 rounded-sm ${
-                          day ? getIntensityColor(day.count) : "bg-transparent"
-                        } hover:scale-125 transition-transform cursor-pointer`}
-                        title={day ? getTooltipText(day) : ""}
-                      />
-                    ))}
-                  </div>
-                ))}
+              {/* カレンダーグリッド（GitHub風の横長レイアウト） */}
+              <div className="flex">
+                {/* 曜日のラベル */}
+                <div className="flex flex-col space-y-1 mr-2">
+                  {["Sun", "", "Mon", "", "Wed", "", "Fri"].map((day, index) => (
+                    <div
+                      key={index}
+                      className="text-xs text-gray-400 h-3 flex items-center"
+                    >
+                      {day}
+                    </div>
+                  ))}
+                </div>
+
+                {/* カレンダーグリッド（横長） */}
+                <div className="flex space-x-1">
+                  {getWeekRows().map((week, weekIndex) => (
+                    <div key={weekIndex} className="flex flex-col space-y-1">
+                      {week.map((day, dayIndex) => (
+                        <div
+                          key={day ? day.date : `empty-${weekIndex}-${dayIndex}`}
+                          className={`w-3 h-3 rounded-sm ${
+                            day ? getIntensityColor(day.count) : "bg-transparent"
+                          } hover:scale-125 transition-transform cursor-pointer`}
+                          data-tooltip-id="calendar-tooltip"
+                          data-tooltip-content={day ? getTooltipText(day) : undefined}
+                        />
+                      ))}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
+          <Tooltip id="calendar-tooltip" />
 
           {/* 凡例 */}
           <div className="flex items-center justify-between text-xs text-gray-400">
