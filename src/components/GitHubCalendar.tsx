@@ -220,7 +220,7 @@ export default function GitHubCalendar() {
         <div className="space-y-4">
           {/* GitHub風コントリビューションカレンダー */}
           <div className="overflow-x-auto overflow-y-hidden">
-            <div className="flex flex-col space-y-2 min-w-max pb-1">
+            <div className="flex flex-col space-y-2 min-w-max pb-2">
               {/* 月のラベル */}
               <div className="flex ml-8">
                 {getMonthLabels().map((month, index) => (
