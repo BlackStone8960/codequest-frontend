@@ -23,13 +23,14 @@ export default function GitHubStreak() {
 
     try {
       const data = await GitHubService.updateUserStreak();
-      setStreakData(data);
+      const resolvedStreak = Math.max(user?.streak || 0, data.currentStreak);
+      setStreakData({ ...data, currentStreak: resolvedStreak });
 
       // Update streak information in user store
       if (user) {
         setUser({
           ...user,
-          streak: data.currentStreak,
+          streak: resolvedStreak,
         });
       }
     } catch (err: any) {
