@@ -4,8 +4,8 @@ import CardSection from "@/components/CardSection";
 import GitHubCalendar from "@/components/GitHubCalendar";
 import GitHubCommitHistory from "@/components/GitHubCommitHistory";
 import GitHubStreak from "@/components/GitHubStreak";
-import Header from "@/components/Header";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import Sidebar from "@/components/Sidebar";
 import { useUserStore } from "@/store/userStore";
 
 export default function Dashboard() {
@@ -13,8 +13,9 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-[#0f172a] text-white px-4 py-2">
-        <Header />
+      <div className="flex min-h-screen bg-[#0f172a] text-white">
+        <Sidebar />
+        <main className="flex-1 pt-14 md:pt-0 px-4 py-4 min-w-0">
 
         {/* Main Grid */}
         <div className="grid gap-4 md:grid-cols-2">
@@ -74,6 +75,7 @@ export default function Dashboard() {
           {/* Tasks Completed */}
           <CardSection title="Tasks Completed" />
         </div>
+        </main>
       </div>
     </ProtectedRoute>
   );

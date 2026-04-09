@@ -1,7 +1,7 @@
 "use client";
 
-import Header from "@/components/Header";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import Sidebar from "@/components/Sidebar";
 import { useUserStore } from "@/store/userStore";
 import Image from "next/image";
 
@@ -10,8 +10,9 @@ export default function Profile() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-[#0f172a] text-white px-4 py-2">
-        <Header />
+      <div className="flex min-h-screen bg-[#0f172a] text-white">
+        <Sidebar />
+        <main className="flex-1 pt-14 md:pt-0 px-4 py-4 min-w-0">
 
         <div className="flex flex-col items-center gap-4 mt-4">
           <Image
@@ -62,6 +63,7 @@ export default function Profile() {
             <span>{user?.tasksCompleted?.length || 0}</span>
           </div>
         </div>
+        </main>
       </div>
     </ProtectedRoute>
   );

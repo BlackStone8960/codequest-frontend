@@ -1,8 +1,8 @@
 "use client";
 
 import AddTaskModal from "@/components/AddTaskModal";
-import Header from "@/components/Header";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import Sidebar from "@/components/Sidebar";
 import { useUserStore } from "@/store/userStore";
 import axios from "axios";
 import { format, isBefore, parseISO, startOfDay } from "date-fns";
@@ -254,8 +254,9 @@ export default function TasksPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-[#0f172a] text-white px-4 py-2">
-        <Header />
+      <div className="flex min-h-screen bg-[#0f172a] text-white">
+        <Sidebar />
+        <main className="flex-1 pt-14 md:pt-0 px-4 py-4 min-w-0">
 
         {/* Tasks Header */}
         <div className="flex justify-between items-center mb-6">
@@ -318,6 +319,7 @@ export default function TasksPage() {
           onClose={() => setIsModalOpen(false)}
           onAdd={handleAddTask}
         />
+        </main>
       </div>
     </ProtectedRoute>
   );
