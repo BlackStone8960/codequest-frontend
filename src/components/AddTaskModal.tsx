@@ -50,7 +50,9 @@ export default function AddTaskModal({
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Task Name */}
           <div>
+            <label htmlFor="task-title" className="sr-only">Title</label>
             <input
+              id="task-title"
               type="text"
               placeholder="Task name"
               value={title}
@@ -62,10 +64,12 @@ export default function AddTaskModal({
 
           {/* Due Date */}
           <div className="relative">
+            <label htmlFor="task-due-date" className="sr-only">Due Date</label>
             <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
               <FaCalendar className="text-gray-400" />
             </div>
             <input
+              id="task-due-date"
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
@@ -76,7 +80,9 @@ export default function AddTaskModal({
 
           {/* Difficulty */}
           <div>
+            <label htmlFor="task-difficulty" className="sr-only">Difficulty</label>
             <select
+              id="task-difficulty"
               value={difficulty}
               onChange={(e) =>
                 setDifficulty(e.target.value as "easy" | "medium" | "hard")
