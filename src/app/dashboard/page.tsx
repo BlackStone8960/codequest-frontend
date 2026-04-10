@@ -18,12 +18,12 @@ export default function Dashboard() {
         <main className="flex-1 pt-14 md:pt-0 px-4 py-4 min-w-0">
 
         {/* Main Grid */}
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="flex justify-between gap-4">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+          <div className="flex flex-col sm:flex-row justify-between gap-4 items-start">
             {/* Level & HP */}
             <CardSection
               title=""
-              className="text-center w-1/2 flex items-center justify-center flex-col"
+              className="text-center sm:w-1/2 flex items-center justify-center flex-col"
             >
               <div className="text-xl">Level</div>
               <div className="text-5xl font-bold my-2">{user?.level || 0}</div>
@@ -35,7 +35,7 @@ export default function Dashboard() {
               </div>
             </CardSection>
 
-            <div className="grid gap-4">
+            <div className="flex-1 grid gap-4">
               {/* GitHub Streak */}
               <GitHubStreak />
 
