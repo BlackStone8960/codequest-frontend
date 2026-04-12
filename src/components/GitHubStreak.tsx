@@ -33,9 +33,9 @@ export default function GitHubStreak() {
           streak: resolvedStreak,
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to fetch streak data:", err);
-      setError(err.message || "Failed to fetch streak information");
+      setError(err instanceof Error ? err.message : "Failed to fetch streak information");
     } finally {
       setIsLoading(false);
     }
@@ -183,7 +183,7 @@ export default function GitHubStreak() {
         {streakData.currentStreak >= 7 && (
           <div className="text-center p-3 bg-orange-900/20 rounded border border-orange-500/20">
             <p className="text-sm text-orange-300">
-              Amazing! You're on a {streakData.currentStreak}-day streak 🔥
+              Amazing! You&apos;re on a {streakData.currentStreak}-day streak 🔥
             </p>
           </div>
         )}

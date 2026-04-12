@@ -3,9 +3,9 @@
 import { useUserStore } from "@/store/userStore";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
-export default function AuthCallbackPage() {
+function AuthCallbackInner() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { setUser } = useUserStore();
@@ -59,7 +59,7 @@ export default function AuthCallbackPage() {
 
         // Redirect to dashboard
         router.push("/dashboard");
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Auth callback error:", error);
         setError("Authentication failed");
         setIsLoading(false);
@@ -97,4 +97,12 @@ export default function AuthCallbackPage() {
   }
 
   return null;
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense>
+      <AuthCallbackInner />
+    </Suspense>
+  );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useUserStore } from "@/store/userStore";
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -64,6 +64,8 @@ const RegisterPage = () => {
         level: user.level,
         tasksCompleted: user.tasksCompleted || [],
         streak: user.streak,
+        longestStreak: user.longestStreak || 0,
+        totalContributions: user.totalContributions || 0,
       });
 
       // Store token in local storage
@@ -71,10 +73,10 @@ const RegisterPage = () => {
 
       // Redirect to dashboard
       router.push("/dashboard");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(
         "Registration error:",
-        error.response?.data?.message || error.message
+        isAxiosError(error) ? error.response?.data?.message || error.message : String(error)
       );
     }
   };

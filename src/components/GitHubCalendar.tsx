@@ -29,7 +29,7 @@ export default function GitHubCalendar() {
     setError(null);
 
     try {
-      const commits = await GitHubService.getUserCommits(user.githubId, 365);
+      const commits = await GitHubService.getUserCommits();
 
       // コミットを日付別にグループ化
       const commitsByDate = new Map<string, GitHubCommit[]>();
@@ -61,9 +61,9 @@ export default function GitHubCalendar() {
       }
 
       setCalendarData(calendar);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to fetch calendar data:", err);
-      setError(err.message || "Failed to fetch calendar data");
+      setError(err instanceof Error ? err.message : "Failed to fetch calendar data");
     } finally {
       setIsLoading(false);
     }

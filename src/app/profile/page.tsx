@@ -4,6 +4,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Sidebar from "@/components/Sidebar";
 import { useUserStore } from "@/store/userStore";
 import Image from "next/image";
+import { FaCheckCircle, FaGithub, FaTimesCircle } from "react-icons/fa";
 
 export default function Profile() {
   const user = useUserStore((state) => state.user);
@@ -61,6 +62,36 @@ export default function Profile() {
           <div className="bg-gray-800 p-4 rounded-md flex justify-between">
             <span className="font-semibold">Tasks Completed</span>
             <span>{user?.tasksCompleted?.length || 0}</span>
+          </div>
+
+          {/* GitHub Connection Status */}
+          <div className="bg-gray-800 p-4 rounded-md">
+            <div className="flex items-center gap-2 mb-3">
+              <FaGithub className="text-xl" />
+              <span className="font-semibold">GitHub</span>
+            </div>
+            {user?.githubId ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-green-400">
+                  <FaCheckCircle />
+                  <span className="text-sm">Connected</span>
+                </div>
+                <span className="text-sm text-gray-300">@{user.username}</span>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-gray-400">
+                  <FaTimesCircle />
+                  <span className="text-sm">Not Connected</span>
+                </div>
+                <a
+                  href={`${process.env.NEXT_PUBLIC_API_URL}/api/auth/github`}
+                  className="text-sm text-teal-400 hover:text-teal-300"
+                >
+                  Connect GitHub
+                </a>
+              </div>
+            )}
           </div>
         </div>
         </main>

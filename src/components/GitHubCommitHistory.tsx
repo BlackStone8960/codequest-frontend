@@ -27,15 +27,15 @@ export default function GitHubCommitHistory() {
     setError(null);
 
     try {
-      const data = await GitHubService.getUserCommits(user.githubId, days);
+      const data = await GitHubService.getUserCommits();
       // 新しいコミットから順に並べる（日付の降順）
       const sortedData = data.sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
       );
       setCommits(sortedData);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to fetch commits:", err);
-      setError(err.message || "Failed to fetch commit history");
+      setError(err instanceof Error ? err.message : "Failed to fetch commit history");
     } finally {
       setIsLoading(false);
     }

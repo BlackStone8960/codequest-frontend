@@ -58,10 +58,7 @@ export class GitHubService {
     }
   }
 
-  static async getUserCommits(
-    username: string,
-    days: number = 365
-  ): Promise<GitHubCommit[]> {
+  static async getUserCommits(): Promise<GitHubCommit[]> {
     try {
       const token = localStorage.getItem("token");
       if (!token) {

@@ -4,7 +4,7 @@ import AddTaskModal from "@/components/AddTaskModal";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Sidebar from "@/components/Sidebar";
 import { useUserStore } from "@/store/userStore";
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import { format, isBefore, parseISO, startOfDay } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -84,10 +84,10 @@ export default function TasksPage() {
 
       setTasks(sortedTasks);
       setError(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error fetching tasks:", err);
 
-      if (err.response?.status === 401 || err.response?.status === 403) {
+      if (isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
         // Clear user data and redirect to login page on authentication error
         clearUser();
         localStorage.removeItem("token");
@@ -131,10 +131,10 @@ export default function TasksPage() {
       setTasks([...tasks, response.data]);
       setIsModalOpen(false);
       setError(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error adding task:", err);
 
-      if (err.response?.status === 401 || err.response?.status === 403) {
+      if (isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
         clearUser();
         localStorage.removeItem("token");
         router.push("/login");
@@ -182,15 +182,17 @@ export default function TasksPage() {
         level: user.level,
         tasksCompleted: user.tasksCompleted || [],
         streak: user.streak,
+        longestStreak: user.longestStreak || 0,
+        totalContributions: user.totalContributions || 0,
       });
 
       // Refresh tasks to get updated state
       await fetchTasks();
       setError(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error updating task:", err);
 
-      if (err.response?.status === 401 || err.response?.status === 403) {
+      if (isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
         clearUser();
         localStorage.removeItem("token");
         router.push("/login");
