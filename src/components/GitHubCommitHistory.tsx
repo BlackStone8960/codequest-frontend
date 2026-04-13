@@ -167,7 +167,7 @@ export default function GitHubCommitHistory() {
               {commits.length > INITIAL_LIMIT && !showAll && (
                 <button
                   onClick={() => setShowAll(true)}
-                  className="w-full py-2 text-sm text-blue-400 hover:text-blue-300 bg-gray-700 rounded-lg"
+                  className="w-full py-2 text-sm text-blue-400 hover:text-blue-300 bg-gray-700 rounded-lg cursor-pointer"
                 >
                   More ({commits.length - INITIAL_LIMIT} remaining)
                 </button>
