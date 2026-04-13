@@ -2,7 +2,6 @@
 
 import CardSection from "@/components/CardSection";
 import GitHubCalendar from "@/components/GitHubCalendar";
-import GitHubCommitHistory from "@/components/GitHubCommitHistory";
 import GitHubStreak from "@/components/GitHubStreak";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Sidebar from "@/components/Sidebar";
@@ -62,18 +61,6 @@ export default function Dashboard() {
 
           {/* GitHub Calendar */}
           <GitHubCalendar />
-
-          {/* GitHub Commit History */}
-          <GitHubCommitHistory />
-
-          {/* Recent Activity */}
-          <CardSection title="Recent Activity" />
-
-          {/* Experience Gained */}
-          <CardSection title="Experience Gained" />
-
-          {/* Tasks Completed */}
-          <CardSection title="Tasks Completed" />
         </div>
         </main>
       </div>

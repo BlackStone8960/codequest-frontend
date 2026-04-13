@@ -7,7 +7,6 @@ import {
   FaCalendarAlt,
   FaCode,
   FaExternalLinkAlt,
-  FaGithub,
 } from "react-icons/fa";
 
 export default function GitHubCommitHistory() {
@@ -15,7 +14,10 @@ export default function GitHubCommitHistory() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [days, setDays] = useState(30);
+  const [showAll, setShowAll] = useState(false);
   const user = useUserStore((state) => state.user);
+
+  const INITIAL_LIMIT = 10;
 
   const fetchCommits = async () => {
     if (!user?.githubId) {
@@ -66,7 +68,6 @@ export default function GitHubCommitHistory() {
   if (!user?.githubId) {
     return (
       <div className="bg-gray-800 rounded-lg p-6 text-center">
-        <FaGithub className="text-4xl mx-auto mb-4 text-gray-400" />
         <h3 className="text-lg font-semibold mb-2">
           GitHub Integration Required
         </h3>
@@ -80,28 +81,17 @@ export default function GitHubCommitHistory() {
   return (
     <div className="bg-gray-800 rounded-lg p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <FaGithub className="text-xl" />
-          Push History
-        </h3>
-        <div className="flex items-center gap-4">
-          <select
-            value={days}
-            onChange={(e) => setDays(Number(e.target.value))}
-            className="bg-gray-700 text-white px-3 py-1 rounded text-sm border border-gray-600"
-          >
-            <option value={7}>Last 7 days</option>
-            <option value={30}>Last 30 days</option>
-            <option value={90}>Last 90 days</option>
-            <option value={365}>Last year</option>
-          </select>
-          <button
-            onClick={fetchCommits}
-            className="text-blue-400 hover:text-blue-300 text-sm"
-          >
-            Update
-          </button>
-        </div>
+        <h3 className="text-lg font-semibold">Push History</h3>
+        <select
+          value={days}
+          onChange={(e) => { setDays(Number(e.target.value)); setShowAll(false); }}
+          className="bg-gray-700 text-white px-3 py-1 rounded text-sm border border-gray-600"
+        >
+          <option value={7}>Last 7 days</option>
+          <option value={30}>Last 30 days</option>
+          <option value={90}>Last 90 days</option>
+          <option value={365}>Last year</option>
+        </select>
       </div>
 
       {isLoading && (
@@ -113,7 +103,6 @@ export default function GitHubCommitHistory() {
 
       {error && (
         <div className="text-center py-8">
-          <FaGithub className="text-4xl mx-auto mb-4 text-red-400" />
           <h3 className="text-lg font-semibold mb-2 text-red-400">Error</h3>
           <p className="text-gray-400 text-sm mb-4">{error}</p>
           <button
@@ -139,7 +128,7 @@ export default function GitHubCommitHistory() {
               <div className="text-sm text-gray-400 mb-4">
                 {commits.length} pushes in the last {days} days
               </div>
-              {commits.map((commit, index) => (
+              {(showAll ? commits : commits.slice(0, INITIAL_LIMIT)).map((commit, index) => (
                 <div
                   key={`${commit.sha}-${index}`}
                   className="bg-gray-700 rounded-lg p-4 hover:bg-gray-650 transition-colors"
@@ -175,6 +164,14 @@ export default function GitHubCommitHistory() {
                   </div>
                 </div>
               ))}
+              {commits.length > INITIAL_LIMIT && !showAll && (
+                <button
+                  onClick={() => setShowAll(true)}
+                  className="w-full py-2 text-sm text-blue-400 hover:text-blue-300 bg-gray-700 rounded-lg"
+                >
+                  More ({commits.length - INITIAL_LIMIT} remaining)
+                </button>
+              )}
             </div>
           )}
         </div>

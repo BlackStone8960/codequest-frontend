@@ -3,7 +3,6 @@
 import { GitHubCommit, GitHubService } from "@/services/githubService";
 import { useUserStore } from "@/store/userStore";
 import { useEffect, useState } from "react";
-import { FaGithub } from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
 
@@ -169,7 +168,6 @@ export default function GitHubCalendar() {
   if (!user?.githubId) {
     return (
       <div className="bg-gray-800 rounded-lg p-6 text-center">
-        <FaGithub className="text-4xl mx-auto mb-4 text-gray-400" />
         <h3 className="text-lg font-semibold mb-2">
           GitHub Integration Required
         </h3>
@@ -182,17 +180,8 @@ export default function GitHubCalendar() {
 
   return (
     <div className="bg-gray-800 rounded-lg p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <FaGithub className="text-xl" />
-          Push Calendar
-        </h3>
-        <button
-          onClick={fetchCalendarData}
-          className="text-blue-400 hover:text-blue-300 text-sm"
-        >
-          Update
-        </button>
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold">Push Calendar</h3>
       </div>
 
       {isLoading && (
@@ -204,7 +193,6 @@ export default function GitHubCalendar() {
 
       {error && (
         <div className="text-center py-8">
-          <FaGithub className="text-4xl mx-auto mb-4 text-red-400" />
           <h3 className="text-lg font-semibold mb-2 text-red-400">Error</h3>
           <p className="text-gray-400 text-sm mb-4">{error}</p>
           <button

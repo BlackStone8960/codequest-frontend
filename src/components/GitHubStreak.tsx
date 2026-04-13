@@ -3,7 +3,7 @@
 import { GitHubService, StreakData } from "@/services/githubService";
 import { useUserStore } from "@/store/userStore";
 import { useEffect, useState } from "react";
-import { FaCalendarAlt, FaGithub } from "react-icons/fa";
+import { FaCalendarAlt } from "react-icons/fa";
 
 export default function GitHubStreak() {
   const [streakData, setStreakData] = useState<StreakData | null>(null);
@@ -50,7 +50,6 @@ export default function GitHubStreak() {
   if (!user?.githubId) {
     return (
       <div className="bg-gray-800 rounded-lg p-3 md:p-6 text-center">
-        <FaGithub className="text-4xl mx-auto mb-4 text-gray-400" />
         <h3 className="text-lg font-semibold mb-2">
           GitHub Integration Required
         </h3>
@@ -73,7 +72,6 @@ export default function GitHubStreak() {
   if (error) {
     return (
       <div className="bg-gray-800 rounded-lg p-3 md:p-6 text-center">
-        <FaGithub className="text-4xl mx-auto mb-4 text-red-400" />
         <h3 className="text-lg font-semibold mb-2 text-red-400">Error</h3>
         <p className="text-gray-400 text-sm mb-4">{error}</p>
         <button
@@ -104,17 +102,8 @@ export default function GitHubStreak() {
 
   return (
     <div className="bg-gray-800 rounded-lg p-3 md:p-6">
-      <div className="flex items-center justify-between mb-2 md:mb-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <FaGithub className="text-xl" />
-          GitHub Streak
-        </h3>
-        <button
-          onClick={fetchStreakData}
-          className="text-blue-400 hover:text-blue-300 text-sm"
-        >
-          Update
-        </button>
+      <div className="mb-2 md:mb-4">
+        <h3 className="text-lg font-semibold">Current Streak</h3>
       </div>
 
       <div className="space-y-2 md:space-y-4">
