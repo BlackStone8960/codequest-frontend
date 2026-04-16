@@ -258,11 +258,11 @@ export default function TasksPage() {
     <ProtectedRoute>
       <div className="flex min-h-screen bg-[#0f172a] text-white">
         <Sidebar />
-        <main className="flex-1 pt-14 md:pt-8 px-4 py-4 min-w-0">
+        <main className="flex-1 pt-16 md:pt-10 px-4 py-4 min-w-0">
 
         {/* Tasks Header */}
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-4xl font-bold">Tasks</h1>
+          <h1 className="text-xl font-bold">Tasks</h1>
           <button
             onClick={() => setIsModalOpen(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full flex items-center gap-2 transition-colors"

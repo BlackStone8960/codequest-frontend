@@ -95,7 +95,7 @@ export default function Dashboard() {
                 </div>
               </CardSection>
 
-              <div className="flex-1 grid gap-4">
+              <div className="flex-1 w-full grid gap-4">
                 {/* GitHub Streak */}
                 <GitHubStreak />
 

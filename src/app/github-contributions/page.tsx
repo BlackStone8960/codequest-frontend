@@ -10,9 +10,9 @@ export default function GitHubContributionsPage() {
     <ProtectedRoute>
       <div className="flex min-h-screen bg-[#0f172a] text-white">
         <Sidebar />
-        <main className="flex-1 pt-14 md:pt-8 px-4 py-4 min-w-0">
+        <main className="flex-1 pt-16 md:pt-10 px-4 py-4 min-w-0">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-4xl font-bold">GitHub Activity</h1>
+            <h1 className="text-xl font-bold">GitHub Activity</h1>
           </div>
           <div className="flex flex-col gap-4">
             <GitHubCalendar />

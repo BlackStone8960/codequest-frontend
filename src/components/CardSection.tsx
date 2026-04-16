@@ -8,7 +8,7 @@ export default function CardSection({
   className?: string;
 }) {
   return (
-    <div className={`bg-gray-800 p-4 rounded-lg ${className}`}>
+    <div className={`bg-gray-800 p-3 rounded-lg ${className}`}>
       <h2 className="text-xl font-bold mb-2">{title}</h2>
       {children}
     </div>

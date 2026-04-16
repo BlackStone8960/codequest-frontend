@@ -49,7 +49,7 @@ export default function GitHubStreak() {
 
   if (!user?.githubId) {
     return (
-      <div className="bg-gray-800 rounded-lg p-3 md:p-6 text-center">
+      <div className="bg-gray-800 rounded-lg p-3 text-center">
         <h3 className="text-lg font-semibold mb-2">
           GitHub Integration Required
         </h3>
@@ -62,7 +62,7 @@ export default function GitHubStreak() {
 
   if (isLoading) {
     return (
-      <div className="bg-gray-800 rounded-lg p-3 md:p-6 text-center">
+      <div className="bg-gray-800 rounded-lg p-3 text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
         <p className="text-gray-400">Fetching streak information...</p>
       </div>
@@ -71,7 +71,7 @@ export default function GitHubStreak() {
 
   if (error) {
     return (
-      <div className="bg-gray-800 rounded-lg p-3 md:p-6 text-center">
+      <div className="bg-gray-800 rounded-lg p-3 text-center">
         <h3 className="text-lg font-semibold mb-2 text-red-400">Error</h3>
         <p className="text-gray-400 text-sm mb-4">{error}</p>
         <button
@@ -101,7 +101,7 @@ export default function GitHubStreak() {
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg p-3 md:p-6">
+    <div className="bg-gray-800 rounded-lg p-3">
       <div className="mb-2 md:mb-4">
         <h3 className="text-lg font-semibold">Current Streak</h3>
       </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import CustomSelect from "@/components/CustomSelect";
 import { useState } from "react";
 import { FaCalendar } from "react-icons/fa";
 
@@ -80,34 +81,17 @@ export default function AddTaskModal({
 
           {/* Difficulty */}
           <div>
-            <label htmlFor="task-difficulty" className="sr-only">Difficulty</label>
-            <select
-              id="task-difficulty"
+            <CustomSelect
+              options={[
+                { label: "Easy", value: "easy" },
+                { label: "Medium", value: "medium" },
+                { label: "Hard", value: "hard" },
+              ]}
               value={difficulty}
-              onChange={(e) =>
-                setDifficulty(e.target.value as "easy" | "medium" | "hard")
-              }
-              className="w-full px-4 py-3 rounded-lg bg-[#1e293b] border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg appearance-none"
-            >
-              <option
-                value="easy"
-                className="bg-[#1e293b] text-white text-lg py-2 px-3"
-              >
-                Easy
-              </option>
-              <option
-                value="medium"
-                className="bg-[#1e293b] text-white text-lg py-2 px-3"
-              >
-                Medium
-              </option>
-              <option
-                value="hard"
-                className="bg-[#1e293b] text-white text-lg py-2 px-3"
-              >
-                Hard
-              </option>
-            </select>
+              onChange={(v) => setDifficulty(v as "easy" | "medium" | "hard")}
+              className="w-full"
+              buttonClassName="bg-transparent hover:bg-white/5 rounded-lg px-4 py-2 text-base"
+            />
           </div>
 
           {/* Buttons */}

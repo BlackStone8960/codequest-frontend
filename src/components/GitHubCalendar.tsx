@@ -2,7 +2,7 @@
 
 import { GitHubCommit, GitHubService } from "@/services/githubService";
 import { useUserStore } from "@/store/userStore";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
 
@@ -17,6 +17,13 @@ export default function GitHubCalendar() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const user = useUserStore((state) => state.user);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (calendarData.length > 0 && scrollRef.current) {
+      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
+    }
+  }, [calendarData]);
 
   const fetchCalendarData = async () => {
     if (!user?.githubId) {
@@ -30,7 +37,7 @@ export default function GitHubCalendar() {
     try {
       const commits = await GitHubService.getUserCommits();
 
-      // コミットを日付別にグループ化
+      // Group commits by date
       const commitsByDate = new Map<string, GitHubCommit[]>();
 
       commits.forEach((commit) => {
@@ -42,7 +49,7 @@ export default function GitHubCalendar() {
         commitsByDate.get(date)!.push(commit);
       });
 
-      // 過去365日間のカレンダーデータを生成
+      // Generate calendar data for the past 365 days
       const calendar: CalendarDay[] = [];
       const today = new Date();
 
@@ -93,13 +100,13 @@ export default function GitHubCalendar() {
   const GAP = 4; // space-x-1 = 4px
   const WEEK_WIDTH = CELL_SIZE + GAP; // 16px per week column
 
-  // 月のラベルを生成
+  // Generate month labels
   const getMonthLabels = () => {
     const today = new Date();
     const startDate = new Date(today);
     startDate.setDate(today.getDate() - 364);
 
-    // 開始日を週の最初の日（日曜日）に調整
+    // Align start date to the beginning of the week (Sunday)
     const dayOfWeek = startDate.getDay();
     startDate.setDate(startDate.getDate() - dayOfWeek);
 
@@ -131,14 +138,14 @@ export default function GitHubCalendar() {
     }));
   };
 
-  // 週ごとの行を生成（GitHub風の横長レイアウト）
+  // Generate week rows (GitHub-style horizontal layout)
   const getWeekRows = () => {
     const weeks = [];
     const today = new Date();
     const startDate = new Date(today);
     startDate.setDate(today.getDate() - 364);
 
-    // 開始日を週の最初の日（日曜日）に調整
+    // Align start date to the beginning of the week (Sunday)
     const dayOfWeek = startDate.getDay();
     startDate.setDate(startDate.getDate() - dayOfWeek);
 
@@ -148,7 +155,7 @@ export default function GitHubCalendar() {
         const currentDate = new Date(startDate);
         currentDate.setDate(startDate.getDate() + week * 7 + day);
 
-        // 今日より未来の日付は表示しない
+        // Skip dates in the future
         if (currentDate > today) {
           weekDays.push(null);
           continue;
@@ -167,7 +174,7 @@ export default function GitHubCalendar() {
 
   if (!user?.githubId) {
     return (
-      <div className="bg-gray-800 rounded-lg p-6 text-center">
+      <div className="bg-gray-800 rounded-lg p-3 text-center">
         <h3 className="text-lg font-semibold mb-2">
           GitHub Integration Required
         </h3>
@@ -179,7 +186,7 @@ export default function GitHubCalendar() {
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6">
+    <div className="bg-gray-800 rounded-lg p-3">
       <div className="mb-6">
         <h3 className="text-lg font-semibold">Push Calendar</h3>
       </div>
@@ -207,10 +214,22 @@ export default function GitHubCalendar() {
       {!isLoading && !error && (
         <div className="space-y-4">
           {/* GitHub風コントリビューションカレンダー */}
-          <div className="overflow-x-auto overflow-y-hidden">
+          <div ref={scrollRef} className="overflow-x-auto overflow-y-hidden">
             <div className="flex flex-col space-y-2 min-w-max pb-2">
-              {/* 月のラベル */}
-              <div className="flex ml-8">
+              {/* 月のラベル - mobile */}
+              <div className="flex sm:hidden ml-8">
+                {getMonthLabels().map((month, index) => (
+                  <div
+                    key={index}
+                    className="text-[9px] text-gray-400 whitespace-nowrap"
+                    style={{ width: `${month.weeks * 12}px` }}
+                  >
+                    {month.hidden ? "" : month.name}
+                  </div>
+                ))}
+              </div>
+              {/* 月のラベル - desktop */}
+              <div className="hidden sm:flex ml-8">
                 {getMonthLabels().map((month, index) => (
                   <div
                     key={index}
@@ -229,7 +248,7 @@ export default function GitHubCalendar() {
                   {["Sun", "", "Mon", "", "Wed", "", "Fri"].map((day, index) => (
                     <div
                       key={index}
-                      className="text-xs text-gray-400 h-3 flex items-center"
+                      className="text-xs text-gray-400 h-2 sm:h-3 flex items-center"
                     >
                       {day}
                     </div>
@@ -243,7 +262,7 @@ export default function GitHubCalendar() {
                       {week.map((day, dayIndex) => (
                         <div
                           key={day ? day.date : `empty-${weekIndex}-${dayIndex}`}
-                          className={`w-3 h-3 rounded-sm ${
+                          className={`w-2 h-2 sm:w-3 sm:h-3 rounded-sm ${
                             day ? getIntensityColor(day.count) : "bg-transparent"
                           } hover:scale-125 transition-transform cursor-pointer`}
                           data-tooltip-id="calendar-tooltip"
@@ -264,11 +283,11 @@ export default function GitHubCalendar() {
             <div className="flex items-center gap-2">
               <span>Less</span>
               <div className="flex gap-1">
-                <div className="w-3 h-3 bg-gray-700 rounded-sm"></div>
-                <div className="w-3 h-3 bg-green-600 rounded-sm"></div>
-                <div className="w-3 h-3 bg-green-500 rounded-sm"></div>
-                <div className="w-3 h-3 bg-green-400 rounded-sm"></div>
-                <div className="w-3 h-3 bg-green-300 rounded-sm"></div>
+                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-gray-700 rounded-sm"></div>
+                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-600 rounded-sm"></div>
+                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-sm"></div>
+                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-sm"></div>
+                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-300 rounded-sm"></div>
               </div>
               <span>More</span>
             </div>
@@ -276,19 +295,19 @@ export default function GitHubCalendar() {
 
           {/* 統計情報 */}
           <div className="grid grid-cols-3 gap-4 text-sm">
-            <div className="bg-gray-700 rounded p-3 text-center">
+            <div className="bg-gray-700 rounded p-3 text-center flex flex-col justify-center">
               <div className="text-xl font-bold text-green-400">
                 {calendarData.filter((day) => day.count > 0).length}
               </div>
               <div className="text-gray-400">Active Days</div>
             </div>
-            <div className="bg-gray-700 rounded p-3 text-center">
+            <div className="bg-gray-700 rounded p-3 text-center flex flex-col justify-center">
               <div className="text-xl font-bold text-blue-400">
                 {calendarData.reduce((sum, day) => sum + day.count, 0)}
               </div>
               <div className="text-gray-400">Total Pushes</div>
             </div>
-            <div className="bg-gray-700 rounded p-3 text-center">
+            <div className="bg-gray-700 rounded p-3 text-center flex flex-col justify-center">
               <div className="text-xl font-bold text-yellow-400">
                 {Math.max(...calendarData.map((day) => day.count))}
               </div>

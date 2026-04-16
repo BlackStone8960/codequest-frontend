@@ -65,7 +65,7 @@ export class GitHubService {
         throw new Error("Authentication token not available");
       }
 
-      // バックエンドの新しいエンドポイントを使用
+      // Use the backend endpoint
       const response = await axios.get(
         "http://localhost:8080/api/github/commits",
         {

@@ -1,13 +1,10 @@
 "use client";
 
+import CustomSelect from "@/components/CustomSelect";
 import { GitHubCommit, GitHubService } from "@/services/githubService";
 import { useUserStore } from "@/store/userStore";
 import { useEffect, useState } from "react";
-import {
-  FaCalendarAlt,
-  FaCode,
-  FaExternalLinkAlt,
-} from "react-icons/fa";
+import { FaCalendarAlt, FaCode, FaExternalLinkAlt } from "react-icons/fa";
 
 export default function GitHubCommitHistory() {
   const [commits, setCommits] = useState<GitHubCommit[]>([]);
@@ -16,6 +13,13 @@ export default function GitHubCommitHistory() {
   const [days, setDays] = useState(30);
   const [showAll, setShowAll] = useState(false);
   const user = useUserStore((state) => state.user);
+
+  const PERIOD_OPTIONS = [
+    { label: "Last 7 days", value: 7 },
+    { label: "Last 30 days", value: 30 },
+    { label: "Last 90 days", value: 90 },
+    { label: "Last year", value: 365 },
+  ];
 
   const INITIAL_LIMIT = 10;
 
@@ -30,7 +34,7 @@ export default function GitHubCommitHistory() {
 
     try {
       const data = await GitHubService.getUserCommits();
-      // 新しいコミットから順に並べる（日付の降順）
+      // Sort commits by date descending (newest first)
       const sortedData = data.sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
       );
@@ -67,7 +71,7 @@ export default function GitHubCommitHistory() {
 
   if (!user?.githubId) {
     return (
-      <div className="bg-gray-800 rounded-lg p-6 text-center">
+      <div className="bg-gray-800 rounded-lg p-3 text-center">
         <h3 className="text-lg font-semibold mb-2">
           GitHub Integration Required
         </h3>
@@ -79,19 +83,15 @@ export default function GitHubCommitHistory() {
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6">
+    <div className="bg-gray-800 rounded-lg p-3">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold">Push History</h3>
-        <select
+        <CustomSelect
+          options={PERIOD_OPTIONS}
           value={days}
-          onChange={(e) => { setDays(Number(e.target.value)); setShowAll(false); }}
-          className="bg-gray-700 text-white px-3 py-1 rounded text-sm border border-gray-600"
-        >
-          <option value={7}>Last 7 days</option>
-          <option value={30}>Last 30 days</option>
-          <option value={90}>Last 90 days</option>
-          <option value={365}>Last year</option>
-        </select>
+          onChange={(v) => { setDays(Number(v)); setShowAll(false); }}
+          className="w-36"
+        />
       </div>
 
       {isLoading && (
@@ -131,7 +131,7 @@ export default function GitHubCommitHistory() {
               {(showAll ? commits : commits.slice(0, INITIAL_LIMIT)).map((commit, index) => (
                 <div
                   key={`${commit.sha}-${index}`}
-                  className="bg-gray-700 rounded-lg p-4 hover:bg-gray-650 transition-colors"
+                  className="bg-gray-700 rounded-lg p-2 hover:bg-gray-650 transition-colors"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
